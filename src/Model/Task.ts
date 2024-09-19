@@ -107,13 +107,11 @@ public getTimeFromSummary() {
     if (match) {
         // Extract start and end times
         let start = to24HourFormat(match[0].trim());
-        alert(start);
         let end = start
         if(match[1]) {
           end = to24HourFormat(match[1].trim());
         }
-	      //TODO: handle match[2]
-       
+	      //TODO: handle match[2]       
 
         // If start and end times are the same, add 30 minutes to the end time
         if (start === end) {
