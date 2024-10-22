@@ -79,18 +79,33 @@ export class IcalService {
         case 'PreferDueDate':
         case 'PreferDueDateWithTime':
         default:
-          if (task.hasA(TaskDateName.Start) && task.hasA(TaskDateName.Due)) {
-            event += 'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + '\r\n' +
-                     'DTEND:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';
-          } else if (task.hasA(TaskDateName.Due)) {
-            event += 'DTSTART:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';
+          if (task.hasA(TaskDateName.Due)) {
+            const dueDate = task.getDate(TaskDateName.Due, 'YYYY-MM-DD HH:mm:ss');
+            const dueMoment = moment(dueDate, 'YYYY-MM-DD HH:mm:ss');
+            
+            if (dueMoment.isValid() && dueMoment.hours() !== 0 && dueMoment.minutes() !== 0) {
+              event += 'DTSTART:' + dueMoment.format('YYYYMMDDTHHmmss') + '\r\n';
+            } else {
+              event += 'DTSTART:' + dueMoment.format('YYYYMMDD') + 'T' + settings.defaultStartTime.replace(':', '') + '00\r\n';
+            }
+
+            // Check if there's an end time
+            const summaryMatch = task.summary.match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+            if (summaryMatch) {
+              const endTime = summaryMatch[2];
+              event += 'DTEND:' + dueMoment.format('YYYYMMDD') + 'T' + endTime.replace(':', '') + '00\r\n';
+            } else {
+              event += 'DTEND:' + dueMoment.add(settings.defaultDuration, 'minutes').format('YYYYMMDDTHHmmss') + '\r\n';
+            }
           } else if (task.hasA(TaskDateName.Start)) {
-            event += 'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + '\r\n';
+            event += 'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + 'T' + settings.defaultStartTime.replace(':', '') + '00\r\n';
+            event += 'DTEND:' + moment(task.getDate(TaskDateName.Start, 'YYYYMMDD')).add(settings.defaultDuration, 'minutes').format('YYYYMMDDTHHmmss') + '\r\n';
           } else if (task.hasA(TaskDateName.TimeStart) && task.hasA(TaskDateName.TimeEnd)) {
             event += 'DTSTART:' + task.getDate(TaskDateName.TimeStart, 'YYYYMMDD[T]HHmmss[Z]') + '\r\n';
             event += 'DTEND:' + task.getDate(TaskDateName.TimeEnd, 'YYYYMMDD[T]HHmmss[Z]') + '\r\n';
           } else {
-            event += 'DTSTART:' + task.getDate(null, 'YYYYMMDD') + '\r\n';
+            event += 'DTSTART:' + task.getDate(null, 'YYYYMMDD') + 'T' + settings.defaultStartTime.replace(':', '') + '00\r\n';
+            event += 'DTEND:' + moment(task.getDate(null, 'YYYYMMDD')).add(settings.defaultDuration, 'minutes').format('YYYYMMDDTHHmmss') + '\r\n';
           }
           break;
       }

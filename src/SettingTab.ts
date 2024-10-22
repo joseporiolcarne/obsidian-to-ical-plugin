@@ -394,6 +394,30 @@ export class SettingTab extends PluginSettingTab {
     }
 
     new Setting(containerEl)
+      .setName('Default start time')
+      .setDesc('Default start time for tasks without a specified time (HH:MM format)')
+      .addText((text) =>
+        text
+          .setPlaceholder('09:00')
+          .setValue(settings.defaultStartTime)
+          .onChange(async (value) => {
+            settings.defaultStartTime = value;
+          })
+      );
+
+    new Setting(containerEl)
+      .setName('Default task duration')
+      .setDesc('Default duration for tasks without a specified end time (in minutes)')
+      .addText((text) =>
+        text
+          .setPlaceholder('30')
+          .setValue(settings.defaultDuration.toString())
+          .onChange(async (value) => {
+            settings.defaultDuration = parseInt(value, 10);
+          })
+      );
+
+    new Setting(containerEl)
       .setName('Debug mode')
       .setDesc('Turning this on will write logs to console.')
       .addToggle((toggle: ToggleComponent) =>

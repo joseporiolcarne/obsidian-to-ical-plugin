@@ -37,6 +37,8 @@ export interface Settings {
   includeTasksWithTags: string;
   isExcludeTasksWithTags: boolean;
   excludeTasksWithTags: string;
+  defaultStartTime: string;
+  defaultDuration: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -64,4 +66,6 @@ export const DEFAULT_SETTINGS: Settings = {
   includeTasksWithTags: '#calendar',
   isExcludeTasksWithTags: false,
   excludeTasksWithTags: '#ignore',
+  defaultStartTime: '09:00',
+  defaultDuration: 30,
 };
