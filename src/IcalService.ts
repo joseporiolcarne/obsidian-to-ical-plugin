@@ -105,29 +105,41 @@ export class IcalService {
         case 'PreferDueDate':
         case 'PreferDueDateWithTime':
         default:
+          console.log('Entering PreferDueDateWithTime case');
+          console.log('Task:', task);
+          console.log('Settings:', settings);
           if (task.hasA(TaskDateName.Start) && task.hasA(TaskDateName.Due)) {
+            console.log('Task has both Start and Due dates');
             event += '' +
               'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDDTHHmmss') + '\r\n' +
               'DTEND:' + task.getDate(TaskDateName.Due, 'YYYYMMDDTHHmmss') + '\r\n';
           } else if (task.hasA(TaskDateName.Due)) {
+            console.log('Task has Due date');
             const dueDate = task.getDate(TaskDateName.Due, 'YYYY-MM-DD HH:mm');
+            console.log('Due date:', dueDate);
             const parsedDate = moment(dueDate, 'YYYY-MM-DD HH:mm', true);
+            console.log('Parsed date:', parsedDate);
             if (parsedDate.isValid() && settings.howToProcessMultipleDates === 'PreferDueDateWithTime') {
+              console.log('Using parsed date with time');
               event += 'DTSTART:' + parsedDate.format('YYYYMMDDTHHmmss') + '\r\n';
             } else {
+              console.log('Using due date without time');
               event += 'DTSTART:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';
             }
           } else if (task.hasA(TaskDateName.Start)) {
+            console.log('Task has Start date');
             event += '' +
               'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + '\r\n';
           } else if (task.hasA(TaskDateName.TimeStart) && task.hasA(TaskDateName.TimeEnd)) {
+            console.log('Task has TimeStart and TimeEnd');
             event += 'DTSTART:' + task.getDate(TaskDateName.TimeStart, 'YYYYMMDD[T]HHmmss[Z]') + '\r\n';
             event += 'DTEND:' + task.getDate(TaskDateName.TimeEnd, 'YYYYMMDD[T]HHmmss[Z]') + '\r\n';
           } else {
+            console.log('Task has no specific date, using null');
             event += '' +
               'DTSTART:' + task.getDate(null, 'YYYYMMDD') + '\r\n';
           }
-
+          console.log('Resulting event:', event);
           break;
       }
     } else {
