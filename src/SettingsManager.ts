@@ -262,6 +262,24 @@ class SettingsManager {
     this.settings.excludeTasksWithTags = excludeTasksWithTags;
     this.saveSettings();
   }
+
+  public get defaultStartTime(): string {
+    return this.settings.defaultStartTime;
+  }
+
+  public set defaultStartTime(defaultStartTime: string) {
+    this.settings.defaultStartTime = defaultStartTime;
+    this.saveSettings();
+  }
+
+  public get defaultDuration(): number {
+    return this.settings.defaultDuration;
+  }
+
+  public set defaultDuration(defaultDuration: number) {
+    this.settings.defaultDuration = defaultDuration;
+    this.saveSettings();
+  }
 }
 
 export let settings: SettingsManager = SettingsManager.settingsManager;
