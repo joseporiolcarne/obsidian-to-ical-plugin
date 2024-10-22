@@ -2,6 +2,7 @@ import { Task } from './Model/Task';
 import { TaskDateName } from './Model/TaskDate';
 import { TaskStatus } from './Model/TaskStatus';
 import { settings } from './SettingsManager';
+import * as moment from 'moment';
 
 export class IcalService {
   getCalendar(tasks: Task[]): string {
@@ -101,14 +102,20 @@ export class IcalService {
         // If a due date does not exist, take the start date
         // If a start date does not exist, take any old date that we can find
         case 'PreferDueDate':
+        case 'PreferDueDateWithTime':
         default:
           if (task.hasA(TaskDateName.Start) && task.hasA(TaskDateName.Due)) {
             event += '' +
               'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDDTHHmmss') + '\r\n' +
               'DTEND:' + task.getDate(TaskDateName.Due, 'YYYYMMDDTHHmmss') + '\r\n';
           } else if (task.hasA(TaskDateName.Due)) {
-            event += '' +
-              'DTSTART:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';
+            const dueDate = task.getDate(TaskDateName.Due, 'YYYY-MM-DD HH:mm');
+            const parsedDate = moment(dueDate, 'YYYY-MM-DD HH:mm', true);
+            if (parsedDate.isValid() && settings.howToProcessMultipleDates === 'PreferDueDateWithTime') {
+              event += 'DTSTART:' + parsedDate.format('YYYYMMDDTHHmmss') + '\r\n';
+            } else {
+              event += 'DTSTART:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';
+            }
           } else if (task.hasA(TaskDateName.Start)) {
             event += '' +
               'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + '\r\n';

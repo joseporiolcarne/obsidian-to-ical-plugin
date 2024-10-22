@@ -9,6 +9,7 @@ export const HOW_TO_PROCESS_MULTIPLE_DATES = {
   PreferDueDate: 'Prefer due date (default)',
   PreferStartDate: 'Prefer start date',
   CreateMultipleEvents: 'Create an event per start/scheduled/due date',
+  PreferDueDateWithTime: 'Prefer due date with time',
 };
 
 export interface Settings {
@@ -57,7 +58,7 @@ export const DEFAULT_SETTINGS: Settings = {
   isOnlyTasksWithoutDatesAreTodos: true,
   ignoreOldTasks: false,
   oldTaskInDays: 365,
-  howToProcessMultipleDates: HOW_TO_PROCESS_MULTIPLE_DATES.PreferDueDate,
+  howToProcessMultipleDates: HOW_TO_PROCESS_MULTIPLE_DATES.PreferDueDateWithTime,
   isDayPlannerPluginFormatEnabled: false,
   isIncludeTasksWithTags: false,
   includeTasksWithTags: '#calendar',
