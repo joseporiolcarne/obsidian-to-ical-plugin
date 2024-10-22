@@ -1,7 +1,8 @@
 import { Task } from './Model/Task';
 import { TaskDateName } from './Model/TaskDate';
 import { TaskStatus } from './Model/TaskStatus';
-import { settings, DATE_FORMATS } from './SettingsManager';
+import { settings } from './SettingsManager';
+import { DATE_FORMATS } from './Model/DateFormats';
 import moment from 'moment';
 
 export class IcalService {
