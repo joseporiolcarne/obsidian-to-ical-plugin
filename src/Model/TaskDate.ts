@@ -92,7 +92,6 @@ export function getTaskDatesFromMarkdown(markdown: string, dateOverride: Date|nu
   // If we have an override date, then just use that instead of trying to derive them
   if (dateOverride !== null) {
     const timeRegExp = /\b(\d{1,2}(?::\d{2})?(?::\d{2})?\s*[ap]m|\d{1,2}(?::\d{2})?(?::\d{2})?)(?:\s*-\s*(\d{1,2}(?::\d{2})?(?::\d{2})?\s*[ap]m|\d{1,2}(?::\d{2})?(?::\d{2})?))?\b/i;
-    // const timeRegExp = /\b((?<!\d{4}-\d{2}-)\d{1,2}:(\d{2})(?::\d{2})?\s*(?:[ap][m])?|(?<!\d{4}-\d{2}-)\d{1,2}\s*[ap][m])\b/gi;
     const match = markdown.match(timeRegExp);
 
     if (!match) {
@@ -116,7 +115,7 @@ export function getTaskDatesFromMarkdown(markdown: string, dateOverride: Date|nu
     ];
   }
 
-  const dateRegExp = /(?<emoji>➕|⏳|🛫|📅|✅)?\s?(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{1,2})\b/gi;
+  const dateRegExp = /(?<emoji>➕|⏳|🛫|📅|✅)?\s?(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{1,2})(?:\s(?<hour>\d{2}):(?<minute>\d{2})(?::(?<second>\d{2}))?)?\b/gi;
   const dateMatches = [...markdown.matchAll(dateRegExp)];
 
   const taskDates = dateMatches
@@ -132,7 +131,10 @@ export function getTaskDatesFromMarkdown(markdown: string, dateOverride: Date|nu
       const year = parseInt(dateMatch?.groups?.year ?? '', 10);
       const monthIndex = parseInt(dateMatch?.groups?.month ?? '', 10) - 1;
       const day = parseInt(dateMatch?.groups?.day ?? '', 10);
-      const date = new Date(year, monthIndex, day);
+      const hour = parseInt(dateMatch?.groups?.hour ?? '0', 10);
+      const minute = parseInt(dateMatch?.groups?.minute ?? '0', 10);
+      const second = parseInt(dateMatch?.groups?.second ?? '0', 10);
+      const date = new Date(year, monthIndex, day, hour, minute, second);
 
       return new TaskDate(date, taskDateName);
     });
