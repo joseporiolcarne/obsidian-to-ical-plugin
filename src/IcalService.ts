@@ -36,11 +36,6 @@ export class IcalService {
   }
 
   private getEvent(task: Task, date: string|null, prependSummary: string): string {
-    // console.log({task});
-
-    // This task does not have a date.
-    // Therefore it must be included because it is a TODO and isIncludeTodos setting is true.
-    // Don't add it to the VEVENT block, as it will be added to the VTODO block later.
     if (task.hasAnyDate() === false) {
       return '';
     }
@@ -51,12 +46,7 @@ export class IcalService {
       'DTSTAMP:' + task.getDate(null, 'YYYYMMDDTHHmmss') + '\r\n';
 
     if (date === null) {
-
       switch (settings.howToProcessMultipleDates) {
-
-        // User would prefer to use the task's start date
-        // If a start date does not exist, take the due date
-        // If a due date does not exist, take any old date that we can find
         case 'PreferStartDate':
           if (task.hasA(TaskDateName.Start)) {
             event += 'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + '\r\n';
@@ -68,90 +58,50 @@ export class IcalService {
           } else {
             event += 'DTSTART:' + task.getDate(null, 'YYYYMMDD') + '\r\n';
           }
-
           break;
 
-        // User would prefer to create an event per task date
-        // If there is a start date, then create an event for it
-        // If there is a schedule date, then create an event for it
-        // If there is a due date, then create an event for it
-        // If there are no events, then take any old date that we can find
         case 'CreateMultipleEvents':
           event = '';
-
           if (task.hasA(TaskDateName.Start)) {
             event += this.getEvent(task, task.getDate(TaskDateName.Start, 'YYYYMMDD'), '🛫 ');
           }
-
           if (task.hasA(TaskDateName.Scheduled)) {
             event += this.getEvent(task, task.getDate(TaskDateName.Scheduled, 'YYYYMMDD'), '⏳ ');
           }
-
           if (task.hasA(TaskDateName.Due)) {
             event += this.getEvent(task, task.getDate(TaskDateName.Due, 'YYYYMMDD'), '📅 ');
           }
-
           if (event === '') {
             event += this.getEvent(task, task.getDate(null, 'YYYYMMDD'), '');
           }
-
           return event;
 
-        // User would prefer to use the task's due date
-        // If there is a start and due date, set the start to the start date and the end to the due date
-        // If a start and due date does not exist, take the due date
-        // If a due date does not exist, take the start date
-        // If a start date does not exist, take any old date that we can find
         case 'PreferDueDate':
         case 'PreferDueDateWithTime':
         default:
-          console.log('Entering PreferDueDateWithTime case');
-          console.log('Task:', task);
-          console.log('Settings:', settings);
           if (task.hasA(TaskDateName.Start) && task.hasA(TaskDateName.Due)) {
-            console.log('Task has both Start and Due dates');
-            event += '' +
-              'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDDTHHmmss') + '\r\n' +
-              'DTEND:' + task.getDate(TaskDateName.Due, 'YYYYMMDDTHHmmss') + '\r\n';
+            event += 'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + '\r\n' +
+                     'DTEND:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';
           } else if (task.hasA(TaskDateName.Due)) {
-            console.log('Task has Due date');
-            const dueDate = task.getDate(TaskDateName.Due, 'YYYY-MM-DD HH:mm');
-            console.log('Due date:', dueDate);
-            const parsedDate = moment(dueDate, 'YYYY-MM-DD HH:mm', true);
-            console.log('Parsed date:', parsedDate);
-            if (parsedDate.isValid() && settings.howToProcessMultipleDates === 'PreferDueDateWithTime') {
-              console.log('Using parsed date with time');
-              event += 'DTSTART:' + parsedDate.format('YYYYMMDDTHHmmss') + '\r\n';
-            } else {
-              console.log('Using due date without time');
-              event += 'DTSTART:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';
-            }
+            event += 'DTSTART:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';
           } else if (task.hasA(TaskDateName.Start)) {
-            console.log('Task has Start date');
-            event += '' +
-              'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + '\r\n';
+            event += 'DTSTART:' + task.getDate(TaskDateName.Start, 'YYYYMMDD') + '\r\n';
           } else if (task.hasA(TaskDateName.TimeStart) && task.hasA(TaskDateName.TimeEnd)) {
-            console.log('Task has TimeStart and TimeEnd');
             event += 'DTSTART:' + task.getDate(TaskDateName.TimeStart, 'YYYYMMDD[T]HHmmss[Z]') + '\r\n';
             event += 'DTEND:' + task.getDate(TaskDateName.TimeEnd, 'YYYYMMDD[T]HHmmss[Z]') + '\r\n';
           } else {
-            console.log('Task has no specific date, using null');
-            event += '' +
-              'DTSTART:' + task.getDate(null, 'YYYYMMDD') + '\r\n';
+            event += 'DTSTART:' + task.getDate(null, 'YYYYMMDD') + '\r\n';
           }
-          console.log('Resulting event:', event);
           break;
       }
     } else {
-      // Date has been given to this function which means we are being called recursively due to CreateMultipleEvents
-      event += '' +
-        'DTSTART:' + date + '\r\n';
+      event += 'DTSTART:' + date + '\r\n';
     }
 
-    event += '' +
-      'SUMMARY:' + prependSummary + task.getSummary() + '\r\n' +
-      'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n' +
-      'END:VEVENT\r\n';
+    const summary = task.getSummary().replace(/,\s*\d{2}:\d{2}$/, '');
+    event += 'SUMMARY:' + prependSummary + summary + '\r\n' +
+             'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n' +
+             'END:VEVENT\r\n';
 
     return event;
   }
