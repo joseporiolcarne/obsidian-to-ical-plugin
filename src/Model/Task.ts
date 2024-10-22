@@ -1,5 +1,5 @@
 import 'crypto';
-import { moment } from 'obsidian';
+import moment from 'moment';
 import { TaskDate, TaskDateName, getTaskDatesFromMarkdown, hasTime } from './TaskDate';
 import { TaskStatus, getTaskStatusEmoji, getTaskStatusFromMarkdown } from './TaskStatus';
 import { getSummaryFromMarkdown } from './TaskSummary';
