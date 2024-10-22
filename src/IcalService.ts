@@ -2,7 +2,7 @@ import { Task } from './Model/Task';
 import { TaskDateName } from './Model/TaskDate';
 import { TaskStatus } from './Model/TaskStatus';
 import { settings } from './SettingsManager';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export class IcalService {
   getCalendar(tasks: Task[]): string {
