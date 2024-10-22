@@ -82,16 +82,19 @@ export class IcalService {
           if (task.hasA(TaskDateName.Due)) {
             const dueDate = task.getDate(TaskDateName.Due, 'YYYY-MM-DD HH:mm:ss');
             const dueMoment = moment(dueDate, 'YYYY-MM-DD HH:mm:ss');
+            let startMoment;
             
             if (dueMoment.isValid() && (dueMoment.hours() !== 0 || dueMoment.minutes() !== 0 || dueMoment.seconds() !== 0)) {
-              event += 'DTSTART:' + dueMoment.format('YYYYMMDDTHHmmss') + '\r\n';
+              startMoment = dueMoment;
+              event += 'DTSTART:' + startMoment.format('YYYYMMDDTHHmmss') + '\r\n';
             } else {
               const defaultTime = settings.defaultStartTime || '00:00:00';
-              event += 'DTSTART:' + dueMoment.format('YYYYMMDD') + 'T' + defaultTime.replace(/:/g, '') + '\r\n';
+              startMoment = moment(dueMoment.format('YYYY-MM-DD') + ' ' + defaultTime, 'YYYY-MM-DD HH:mm:ss');
+              event += 'DTSTART:' + startMoment.format('YYYYMMDDTHHmmss') + '\r\n';
             }
 
-            // Calculate end time
-            const endMoment = dueMoment.clone().add(settings.defaultDuration, 'minutes');
+            // Calculate end time based on the start time
+            const endMoment = startMoment.clone().add(settings.defaultDuration, 'minutes');
             event += 'DTEND:' + endMoment.format('YYYYMMDDTHHmmss') + '\r\n';
           } else if (task.hasA(TaskDateName.Start)) {
             const startDate = task.getDate(TaskDateName.Start, 'YYYY-MM-DD HH:mm:ss');
