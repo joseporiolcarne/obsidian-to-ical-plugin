@@ -21,4 +21,4 @@
   "include": [
     "**/*.ts"
   ]
-}esModuleInterop: true,
+}
