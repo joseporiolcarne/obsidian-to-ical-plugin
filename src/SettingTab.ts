@@ -428,6 +428,19 @@ export class SettingTab extends PluginSettingTab {
             this.display();
           })
       );
+
+    new Setting(containerEl)
+      .setName('Hashtags to remove from summary')
+      .setDesc('Enter hashtags to remove from task summaries, separated by commas')
+      .addText((text) =>
+        text
+          .setPlaceholder('#project, #context')
+          .setValue(settings.hashtagsToRemove.join(', '))
+          .onChange(async (value) => {
+            settings.hashtagsToRemove = value.split(',').map(tag => tag.trim()).filter(tag => tag);
+            await settings.saveSettings();
+          })
+      );
   }
 
   validateGithubPersonalAccessToken(value: string): void {
