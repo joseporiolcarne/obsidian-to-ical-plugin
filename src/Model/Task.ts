@@ -72,7 +72,8 @@ export class Task {
       .replace(/\\/gm, '\\\\')
       .replace(/\r?\n/gm, '\\n')
       .replace(/;/gm, '\\;')
-      .replace(/,/gm, '\\,');
+      .replace(/,/gm, '\\,')
+      .replace(/,?\s*\d{1,2}:\d{2}(:\d{2})?\s*$/, ''); // Remove HH:MM or HH:MM:SS at the end
 
     const emoji = getTaskStatusEmoji(this.status);
 
