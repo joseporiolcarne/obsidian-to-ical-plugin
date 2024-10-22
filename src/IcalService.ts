@@ -135,8 +135,8 @@ export class IcalService {
       event += 'DTSTART:' + date + '\r\n';
     }
 
-    const summary = task.getSummary().replace(/,\s*\d{2}:\d{2}$/, '');
-    event += 'SUMMARY:' + prependSummary + summary + '\r\n' +
+    const summary = task.getSummary().replace(/,\s*\d{2}:\d{2}$/, '').replace(/\d{2}:\d{2}\s*-\s*\d{2}:\d{2}/, '');
+    event += 'SUMMARY:' + prependSummary + summary.trim() + '\r\n' +
              'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n' +
              'END:VEVENT\r\n';
 
