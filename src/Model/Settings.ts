@@ -39,6 +39,7 @@ export interface Settings {
   excludeTasksWithTags: string;
   defaultStartTime: string;
   defaultDuration: number;
+  hashtagsToRemove: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -68,4 +69,5 @@ export const DEFAULT_SETTINGS: Settings = {
   excludeTasksWithTags: '#ignore',
   defaultStartTime: '09:00',
   defaultDuration: 30,
+  hashtagsToRemove: [],
 };

@@ -68,12 +68,24 @@ export class Task {
   }
 
   public getSummary(): string {
-    const summary = this.summary
+    let summary = this.summary
       .replace(/\\/gm, '\\\\')
       .replace(/\r?\n/gm, '\\n')
       .replace(/;/gm, '\\;')
       .replace(/,/gm, '\\,')
       .replace(/,?\s*\d{1,2}:\d{2}(:\d{2})?\s*$/, ''); // Remove HH:MM or HH:MM:SS at the end
+
+    // Remove specified hashtags
+    settings.hashtagsToRemove.forEach(hashtag => {
+      const regex = new RegExp(hashtag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      summary = summary.replace(regex, '');
+    });
+
+    // Remove all remaining hashtags
+    summary = summary.replace(/#\w+/g, '');
+
+    // Trim any extra whitespace
+    summary = summary.trim();
 
     const emoji = getTaskStatusEmoji(this.status);
 

@@ -280,6 +280,15 @@ class SettingsManager {
     this.settings.defaultDuration = defaultDuration;
     this.saveSettings();
   }
+
+  public get hashtagsToRemove(): string[] {
+    return this.settings.hashtagsToRemove;
+  }
+
+  public set hashtagsToRemove(hashtagsToRemove: string[]) {
+    this.settings.hashtagsToRemove = hashtagsToRemove;
+    this.saveSettings();
+  }
 }
 
 export let settings: SettingsManager = SettingsManager.settingsManager;
