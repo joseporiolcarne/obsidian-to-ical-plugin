@@ -21,3 +21,7 @@ build
 
 # Ignore Obsidian workspaces file
 test/.obsidian/workspace.json
+
+# Virtual environment (for aider usagen)
+venv/
+.aider*

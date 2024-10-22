@@ -218,3 +218,44 @@ Each task should have a `id=X` where `X` is a unique number. This is so if I add
 - [ ] id=157 exclude because of #exclude2
 - [ ] id=158 exclude because of #exclude1 and #exclude2
 - [ ] id=159 exclude based of #exclude1 even though there is also a #include1
+
+### Due dates emoji format with time HH:MM  and duration optional
+
+
+## Due dates (emoji format) with date YYYY-MM-DD and time HH:MM 
+
+### Due
+- [ ] id=160, todo, 📅 2024-01-01 17:00
+- [x] id=161, done, 📅 2024-01-01 17:00
+- [-] id=162, cancelled, 📅 2024-01-01 17:00
+- [/] id=163, in progress, 📅 2024-01-01 17:00
+### Due, Created
+- [ ] id=164, todo, 📅 2024-01-01 17:00 ➕ 2024-01-01
+- [x] id=165, done, 📅 2024-01-01 17:00 ➕ 2024-01-01
+- [-] id=166, cancelled, 📅 2024-01-01 17:00 ➕ 2024-01-01
+- [/] id=167, in progress, 📅 2024-01-01 17:00 ➕ 2024-01-01
+### Due, Created, Scheduled
+- [ ] id=168, todo, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01
+- [x] id=169, done, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01
+- [-] id=170, cancelled, 📅 2024-01-01 17:00  ➕ 2024-01-01 ⏳ 2024-01-01
+- [/] id=171, in progress, 📅 2024-01-01 17:00  ➕ 2024-01-01 ⏳ 2024-01-01
+### Due, Created, Scheduled, Started
+- [ ] id=172, todo, 📅 2024-01-01 17:00  ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01
+- [x] id=173, done, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01
+- [-] id=174, cancelled, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01
+- [/] id=175, in progress, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01
+### Due, Created, Scheduled, Started, Done
+- [ ] id=176, todo, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01 ✅ 2024-01-01
+- [x] id=177, done, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01 ✅ 2024-01-01
+- [-] id=178, cancelled, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01 ✅ 2024-01-01
+- [/] id=179, in progress, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01 ✅ 2024-01-01
+### Due, Created, Scheduled, Started, Cancelled
+- [ ] id=180, todo, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01 ❌ 2024-01-01
+- [x] id=181, done, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01 ❌ 2024-01-01
+- [-] id=182, cancelled, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01 ❌ 2024-01-01
+- [/] id=183, in progress, 📅 2024-01-01 17:00 ➕ 2024-01-01 ⏳ 2024-01-01 🛫 2024-01-01 ❌ 2024-01-01
+
+## Due dates (emoji format) with date YYYY-MM-DD start time HH:MM and end time HH:MM
+
+### Due
+- [ ] id=184, todo, 📅 2024-01-01 17:00 - 17:45

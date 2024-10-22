@@ -106,8 +106,12 @@ export function getTaskDatesFromMarkdown(markdown: string, dateOverride: Date|nu
       timeEndString = calculateEndTime(timeStartString);
     }
 
+    console.log('timeStartString', timeStartString);
+
     const timeStart = createTimeDate(dateOverride, timeStartString);
     const timeEnd = createTimeDate(dateOverride, timeEndString);
+
+    console.log('timeStart', timeStart);
 
     return [
       new TaskDate(timeStart, TaskDateName.TimeStart),
