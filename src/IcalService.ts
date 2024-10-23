@@ -145,7 +145,7 @@ export class IcalService {
     .replace(/\s*-\s*/, "");
     event += 'SUMMARY:' + prependSummary + summary.trim() + '\r\n';
     
-    if (!settings.ignoreLocation) {
+    if (!settings.ignoreLocation === true) {
       event += 'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n';
     }
     
@@ -175,7 +175,7 @@ export class IcalService {
       // If a task does not have a date, do not include the DTSTAMP property
       (task.hasAnyDate() ? 'DTSTAMP:' + task.getDate(null, 'YYYYMMDDTHHmmss') + '\r\n' : '');
 
-    if (!settings.ignoreLocation) {
+    if (!settings.ignoreLocation === true) {
       toDo += 'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n';
     }
 

@@ -24,5 +24,7 @@
   "isExcludeTasksWithTags": false,
   "excludeTasksWithTags": "#ignore",
   "defaultStartTime": "09:00",
-  "defaultDuration": 30
+  "defaultDuration": 30,
+  "hashtagsToRemove": [],
+  "ignoreLocation": true
 }

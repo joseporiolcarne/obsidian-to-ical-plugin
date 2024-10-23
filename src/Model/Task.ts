@@ -95,7 +95,74 @@ export class Task {
   public getLocation(): string {
     return this.fileUri;
   }
+
+  public getTimeFromSummary() {
+    // Updated regex to handle both 12-hour (with AM/PM) and 24-hour formats- (Eg. 10:00,  11:00 AM, 10:00 - 12:00)
+    const timeRegex = /(\d{1,2}(?::\d{2}(?::\d{2})?)?\s*(?:[aApP][mM])?)\s*-\s*(\d{1,2}(?::\d{2}(?::\d{2})?)?\s*(?:[aApP][mM])?)/;
+    const singleTimeRegex = /(\d{1,2}(?::\d{2}(?::\d{2})?)?\s*(?:[aApP][mM])?)/;
+    // Convert the time to 24-hour format
+    const to24HourFormat = (time: string) => {
+        let [fullTime, ampm] = time.split(/([aApP][mM])/);
+        ampm = ampm ? ampm.toLowerCase() : '';
+        let [hours, minutes, seconds] = fullTime.trim().split(':').map(part => Number(part) || 0); // Handle empty or invalid parts
+        // Handle AM/PM conversion
+        if (ampm.includes('p') && hours !== 12) {
+            hours += 12;
+        } else if (ampm.includes('a') && hours === 12) {
+            hours = 0;
+        }
+        // Ensure values are properly formatted as two digits
+        let hoursStr = Number(hours).toString().padStart(2, '0');
+        let minutesStr = Number(minutes || 0).toString().padStart(2, '0');
+        let secondsStr = String(seconds || 0).padStart(2, '0');
+        return `${hoursStr}:${minutesStr}:${secondsStr}`;
+    };
+    // Attempt to match the full time range (start - end)
+    let match = this.summary.match(timeRegex);
+    if (!match) {
+        // Fallback to single time (assuming end time is the same as start)
+        match = this.summary.match(singleTimeRegex);
+        if (match) {
+            match = [match[0], match[1], match[1]];
+        }
+    }
+    if (match) {
+        // Extract start and end times
+        let start = to24HourFormat(match[0].trim());
+        alert(start);
+        let end = start
+        if(match[1]) {
+          end = to24HourFormat(match[1].trim());
+        }
+	      //TODO: handle match[2]
+       
+        // If start and end times are the same, add 30 minutes to the end time
+        if (start === end) {
+            const [hours, minutes, seconds] = start.split(':').map(Number);
+            const endDate = new Date();
+            endDate.setHours(hours, minutes, seconds || 0);
+            endDate.setMinutes(endDate.getMinutes() + 30);
+            const endHours = String(endDate.getHours()).padStart(2, '0');
+            const endMinutes = String(endDate.getMinutes()).padStart(2, '0');
+            const endSeconds = String(endDate.getSeconds()).padStart(2, '0');
+            end = `${endHours}:${endMinutes}:${endSeconds}`;
+        }
+        // Format time to hhmmss
+        const formatTime = (time: string) => {
+            const [hours, minutes, seconds] = time.split(':');
+            return `${hours}${minutes}${seconds}`;
+        };
+        return {
+            start: formatTime(start),
+            end: formatTime(end)
+        };
+    }
+    
+    return null;
+  }
+
 }
+
 
 export function createTaskFromLine(line: string, fileUri: string, dateOverride: Date|null): Task|null {
   const taskRegExp = /(\*|-)\s*(?<taskStatus>\[.?])\s*(?<summary>.*)\s*/gi;

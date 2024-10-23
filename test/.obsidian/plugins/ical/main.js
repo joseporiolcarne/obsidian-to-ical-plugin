@@ -4326,7 +4326,9 @@ var DEFAULT_SETTINGS = {
   isExcludeTasksWithTags: false,
   excludeTasksWithTags: "#ignore",
   defaultStartTime: "09:00",
-  defaultDuration: 30
+  defaultDuration: 30,
+  hashtagsToRemove: [],
+  ignoreLocation: true
 };
 
 // src/SettingsManager.ts
@@ -4540,6 +4542,20 @@ var SettingsManager = class _SettingsManager {
   }
   set defaultDuration(defaultDuration) {
     this.settings.defaultDuration = defaultDuration;
+    this.saveSettings();
+  }
+  get hashtagsToRemove() {
+    return this.settings.hashtagsToRemove;
+  }
+  set hashtagsToRemove(hashtagsToRemove) {
+    this.settings.hashtagsToRemove = hashtagsToRemove;
+    this.saveSettings();
+  }
+  get ignoreLocation() {
+    return this.settings.ignoreLocation;
+  }
+  set ignoreLocation(ignoreLocation) {
+    this.settings.ignoreLocation = ignoreLocation;
     this.saveSettings();
   }
 };
@@ -7932,17 +7948,12 @@ var IcalService = class {
     } else {
       event += "DTSTART:" + date + "\r\n";
     }
-    console.log( task.getSummary())
-    // const summary = task.getSummary().replace(/,\s*\d{2}:\d{2}$/, "").replace(/\d{2}:\d{2}\s*-\s*\d{2}:\d{2}/, "");
-    const summary = task.getSummary()
-    // Remove all occurrences of "HH:MM - HH:MM" or "HH:MM:SS - HH:MM:SS"
-    .replace(/\d{2}:\d{2}(:\d{2})?\s*-\s*\d{2}:\d{2}(:\d{2})?/, "")
-    // Remove all standalone occurrences of "HH:MM" or "HH:MM:SS"
-    .replace(/\d{2}:\d{2}(:\d{2})?\s*/, "")
-    // Remove occurrences of " - " (spaces around dash)
-    .replace(/\s*-\s*/, "");
-    console.log("summary", summary);
-    event += "SUMMARY:" + prependSummary + summary.trim() + '\r\nLOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + "\r\nEND:VEVENT\r\n";
+    const summary = task.getSummary().replace(/\d{2}:\d{2}(:\d{2})?\s*-\s*\d{2}:\d{2}(:\d{2})?/, "").replace(/\d{2}:\d{2}(:\d{2})?\s*/, "").replace(/\s*-\s*/, "");
+    event += "SUMMARY:" + prependSummary + summary.trim() + "\r\n";
+    if (!settings.ignoreLocation === true) {
+      event += 'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + "\r\n";
+    }
+    event += "END:VEVENT\r\n";
     return event;
   }
   getToDos(tasks) {
@@ -7955,7 +7966,10 @@ var IcalService = class {
   }
   getToDo(task) {
     let toDo = "BEGIN:VTODO\r\nUID:" + task.getId() + "\r\nSUMMARY:" + task.getSummary() + "\r\n" + // If a task does not have a date, do not include the DTSTAMP property
-    (task.hasAnyDate() ? "DTSTAMP:" + task.getDate(null, "YYYYMMDDTHHmmss") + "\r\n" : "") + 'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + "\r\n";
+    (task.hasAnyDate() ? "DTSTAMP:" + task.getDate(null, "YYYYMMDDTHHmmss") + "\r\n" : "");
+    if (!settings.ignoreLocation === true) {
+      toDo += 'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + "\r\n";
+    }
     if (task.hasA("Due" /* Due */)) {
       toDo += "DUE;VALUE=DATE:" + task.getDate("Due" /* Due */, "YYYYMMDD") + "\r\n";
     }
@@ -8116,12 +8130,70 @@ var Task = class {
     }
   }
   getSummary() {
-    const summary = this.summary.replace(/\\/gm, "\\\\").replace(/\r?\n/gm, "\\n").replace(/;/gm, "\\;").replace(/,/gm, "\\,").replace(/,?\s*\d{1,2}:\d{2}(:\d{2})?\s*$/, "");
+    let summary = this.summary.replace(/\\/gm, "\\\\").replace(/\r?\n/gm, "\\n").replace(/;/gm, "\\;").replace(/,/gm, "\\,").replace(/,?\s*\d{1,2}:\d{2}(:\d{2})?\s*$/, "");
+    settings.hashtagsToRemove.forEach((hashtag) => {
+      const regex = new RegExp(hashtag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+      summary = summary.replace(regex, "");
+    });
+    summary = summary.replace(/#\w+/g, "");
+    summary = summary.trim();
     const emoji = getTaskStatusEmoji(this.status);
     return `${emoji} ${summary}`;
   }
   getLocation() {
     return this.fileUri;
+  }
+  getTimeFromSummary() {
+    const timeRegex = /(\d{1,2}(?::\d{2}(?::\d{2})?)?\s*(?:[aApP][mM])?)\s*-\s*(\d{1,2}(?::\d{2}(?::\d{2})?)?\s*(?:[aApP][mM])?)/;
+    const singleTimeRegex = /(\d{1,2}(?::\d{2}(?::\d{2})?)?\s*(?:[aApP][mM])?)/;
+    const to24HourFormat = (time) => {
+      let [fullTime, ampm] = time.split(/([aApP][mM])/);
+      ampm = ampm ? ampm.toLowerCase() : "";
+      let [hours, minutes, seconds] = fullTime.trim().split(":").map((part) => Number(part) || 0);
+      if (ampm.includes("p") && hours !== 12) {
+        hours += 12;
+      } else if (ampm.includes("a") && hours === 12) {
+        hours = 0;
+      }
+      let hoursStr = Number(hours).toString().padStart(2, "0");
+      let minutesStr = Number(minutes || 0).toString().padStart(2, "0");
+      let secondsStr = String(seconds || 0).padStart(2, "0");
+      return `${hoursStr}:${minutesStr}:${secondsStr}`;
+    };
+    let match = this.summary.match(timeRegex);
+    if (!match) {
+      match = this.summary.match(singleTimeRegex);
+      if (match) {
+        match = [match[0], match[1], match[1]];
+      }
+    }
+    if (match) {
+      let start = to24HourFormat(match[0].trim());
+      alert(start);
+      let end = start;
+      if (match[1]) {
+        end = to24HourFormat(match[1].trim());
+      }
+      if (start === end) {
+        const [hours, minutes, seconds] = start.split(":").map(Number);
+        const endDate = /* @__PURE__ */ new Date();
+        endDate.setHours(hours, minutes, seconds || 0);
+        endDate.setMinutes(endDate.getMinutes() + 30);
+        const endHours = String(endDate.getHours()).padStart(2, "0");
+        const endMinutes = String(endDate.getMinutes()).padStart(2, "0");
+        const endSeconds = String(endDate.getSeconds()).padStart(2, "0");
+        end = `${endHours}:${endMinutes}:${endSeconds}`;
+      }
+      const formatTime = (time) => {
+        const [hours, minutes, seconds] = time.split(":");
+        return `${hours}${minutes}${seconds}`;
+      };
+      return {
+        start: formatTime(start),
+        end: formatTime(end)
+      };
+    }
+    return null;
   }
 };
 function createTaskFromLine(line, fileUri, dateOverride) {
@@ -8567,6 +8639,18 @@ var SettingTab = class extends import_obsidian3.PluginSettingTab {
       (toggle) => toggle.setValue(settings.isDebug).onChange(async (value) => {
         settings.isDebug = value;
         this.display();
+      })
+    );
+    new import_obsidian3.Setting(containerEl).setName("Hashtags to remove from summary").setDesc("Enter hashtags to remove from task summaries, separated by commas").addText(
+      (text) => text.setPlaceholder("#project, #context").setValue(settings.hashtagsToRemove.join(", ")).onChange(async (value) => {
+        settings.hashtagsToRemove = value.split(",").map((tag) => tag.trim()).filter((tag) => tag);
+        await settings.saveSettings();
+      })
+    );
+    new import_obsidian3.Setting(containerEl).setName("Ignore Location").setDesc("Choose if you want to ignore the LOCATION field in calendar events.").addToggle(
+      (toggle) => toggle.setValue(settings.ignoreLocation).onChange(async (value) => {
+        settings.ignoreLocation = value;
+        await settings.saveSettings();
       })
     );
   }
