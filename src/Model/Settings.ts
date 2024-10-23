@@ -40,6 +40,7 @@ export interface Settings {
   defaultStartTime: string;
   defaultDuration: number;
   hashtagsToRemove: string[];
+  ignoreLocation: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -70,4 +71,5 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultStartTime: '09:00',
   defaultDuration: 30,
   hashtagsToRemove: [],
+  ignoreLocation: true,
 };

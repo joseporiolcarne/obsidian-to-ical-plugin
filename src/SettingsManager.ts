@@ -289,6 +289,15 @@ class SettingsManager {
     this.settings.hashtagsToRemove = hashtagsToRemove;
     this.saveSettings();
   }
+
+  public get ignoreLocation(): boolean {
+    return this.settings.ignoreLocation;
+  }
+
+  public set ignoreLocation(ignoreLocation: boolean) {
+    this.settings.ignoreLocation = ignoreLocation;
+    this.saveSettings();
+  }
 }
 
 export let settings: SettingsManager = SettingsManager.settingsManager;

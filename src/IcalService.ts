@@ -143,9 +143,13 @@ export class IcalService {
     .replace(/\d{2}:\d{2}(:\d{2})?\s*/, "")
     // Remove occurrences of " - " (spaces around dash)
     .replace(/\s*-\s*/, "");
-    event += 'SUMMARY:' + prependSummary + summary.trim() + '\r\n' +
-             'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n' +
-             'END:VEVENT\r\n';
+    event += 'SUMMARY:' + prependSummary + summary.trim() + '\r\n';
+    
+    if (!settings.ignoreLocation) {
+      event += 'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n';
+    }
+    
+    event += 'END:VEVENT\r\n';
 
     return event;
   }
@@ -169,8 +173,11 @@ export class IcalService {
       'UID:' + task.getId() + '\r\n' +
       'SUMMARY:' + task.getSummary() + '\r\n' +
       // If a task does not have a date, do not include the DTSTAMP property
-      (task.hasAnyDate() ? 'DTSTAMP:' + task.getDate(null, 'YYYYMMDDTHHmmss') + '\r\n' : '') +
-      'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n';
+      (task.hasAnyDate() ? 'DTSTAMP:' + task.getDate(null, 'YYYYMMDDTHHmmss') + '\r\n' : '');
+
+    if (!settings.ignoreLocation) {
+      toDo += 'LOCATION:ALTREP="' + encodeURI(task.getLocation()) + '":' + encodeURI(task.getLocation()) + '\r\n';
+    }
 
     if (task.hasA(TaskDateName.Due)) {
       toDo += 'DUE;VALUE=DATE:' + task.getDate(TaskDateName.Due, 'YYYYMMDD') + '\r\n';

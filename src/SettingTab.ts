@@ -441,6 +441,18 @@ export class SettingTab extends PluginSettingTab {
             await settings.saveSettings();
           })
       );
+
+      new Setting(containerEl)
+        .setName('Ignore Location')
+        .setDesc('Choose if you want to ignore the LOCATION field in calendar events.')
+        .addToggle((toggle: ToggleComponent) =>
+          toggle
+            .setValue(settings.ignoreLocation)
+            .onChange(async (value) => {
+              settings.ignoreLocation = value;
+              await settings.saveSettings();
+            })
+        );
   }
 
   validateGithubPersonalAccessToken(value: string): void {
